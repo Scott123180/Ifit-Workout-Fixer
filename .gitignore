@@ -1,0 +1,39 @@
+# IntelliJ files
+.idea/
+*.iml
+
+# Compiled class files
+*.class
+
+# Build output directories
+out/
+target/
+build/
+bin/
+dist/
+classes/
+
+# Logs and backups
+*.log
+*.bak
+*.swp
+*~
+
+# Maven files
+*.jar
+*.war
+*.ear
+lib/
+pom.xml
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Gradle files
+.gradle/
+.gradle.kts/
+
+# Other
+.DS_Store
+Thumbs.db
+
