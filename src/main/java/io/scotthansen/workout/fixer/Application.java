@@ -1,12 +1,9 @@
 package io.scotthansen.workout.fixer;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,8 +14,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +22,30 @@ public class Application {
 
     private static final String FILE_PATH = "src/main/resources/workout/workout.tcx";
 
-    private static final double INPUT_ACTUAL_CALORIES = 1;
+    //recorded from Apple Watch
+    private static final double ACTUAL_ACTIVE_CALORIES = 195;
 
     public static void main(final String[] args) throws ParserConfigurationException, TransformerException {
 
         File file = new File(FILE_PATH);
         Data data = parseTcxFile(file);
 
+        fixCalories(data);
+
         writeTcxFile(data, new File("new_workout.tcx"));
 
         System.out.println("hi");
+    }
+
+    private static void fixCalories(final Data data) {
+        final List<TrackPoint> trackPoints = data.trackPointList;
+        final double ifitRecordedCalories = trackPoints.get(trackPoints.size() -1).calories;
+
+        final double multiplier = ACTUAL_ACTIVE_CALORIES / ifitRecordedCalories;
+
+        trackPoints.forEach(t -> {
+            t.calories *= multiplier;
+        });
     }
 
     public static Data parseTcxFile(File inputFile) {
@@ -154,6 +163,10 @@ public class Application {
             Element cadenceElement = doc.createElement("Cadence");
             cadenceElement.setTextContent(Integer.toString(tp.cadence));
             trackPointElement.appendChild(cadenceElement);
+
+            Element calorieElement = doc.createElement("Calories");
+            calorieElement.setTextContent(String.format("%.1f", tp.calories));
+            trackPointElement.appendChild(calorieElement);
         }
 
         // write the content into xml file
